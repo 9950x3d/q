@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brainrot Stealing V20 (Rarity Fix)</title>
+    <title>Brainrot Stealing V33 (Remake & New Pet)</title>
     <style>
         :root {
             --bg-color: #0d0d0d;
@@ -24,178 +24,284 @@
             min-height: 100vh;
             overflow-x: hidden;
             overflow-y: auto; 
+            transition: background 0.5s ease;
         }
 
         body.pc-mode { zoom: 0.9; }
         body.mobile-mode { zoom: 1.0; }
 
-        h1 {
-            color: var(--accent-color);
-            text-shadow: 0 0 10px #ff0000;
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            margin-top: 40px;
-        }
+        /* 배경 스타일 */
+        body.bg-secret { background: linear-gradient(180deg, #000, #fff, #000) !important; background-attachment: fixed !important; color: #00ff00 !important; }
+        body.bg-og { background: linear-gradient(180deg, #f7e500, #C9BA00, #988D00, #716900, #000) !important; background-attachment: fixed !important; }
+        body.bg-rainbow { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00ff00, #4b0082, #9400d3) !important; background-size: 400% 400%; animation: rainbowBg 10s ease infinite; background-attachment: fixed !important; }
+        @keyframes rainbowBg { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        h1 { color: var(--accent-color); text-shadow: 2px 2px 0px #000; font-size: 2.2rem; margin-bottom: 15px; margin-top: 40px; cursor: pointer; transition: 0.2s; }
+        h1:active { transform: scale(0.95); }
 
         /* 설정 버튼 */
-        .btn-settings-open {
-            position: absolute; top: 15px; right: 15px;
-            background: #333; color: white; border: 2px solid #555;
-            padding: 8px 12px; border-radius: 10px; cursor: pointer;
-            font-size: 1rem; z-index: 100; font-weight: bold;
-        }
-        .btn-settings-open:hover { background: #555; }
+        .btn-settings-open { position: absolute; top: 15px; right: 15px; background: #333; color: white; border: 2px solid #555; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 1rem; z-index: 100; font-weight: bold; }
+        
+        /* 행운 포션 UI */
+        #luckStatus { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.8); border: 2px solid #00ff00; padding: 8px 15px; border-radius: 20px; color: #00ff00; font-weight: bold; display: none; z-index: 100; box-shadow: 0 0 10px #00ff00; }
 
-        /* 설정 모달 */
-        #settingsModal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 2000;
-            justify-content: center; align-items: center;
-        }
-        .settings-content {
-            background: #222; width: 90%; max-width: 400px; padding: 20px;
-            border-radius: 15px; border: 3px solid #fff; text-align: center;
-            box-shadow: 0 0 20px rgba(255,255,255,0.2);
-        }
+        /* 모달 공통 */
+        #settingsModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .settings-content { background: #222; width: 90%; max-width: 450px; padding: 20px; border-radius: 15px; border: 3px solid #fff; text-align: center; box-shadow: 0 0 20px rgba(255,255,255,0.2); color: white; max-height: 90vh; overflow-y: auto; }
         .settings-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #555; padding-bottom: 10px; }
         .settings-section { margin-bottom: 20px; }
         .settings-label { font-size: 1rem; color: #aaa; margin-bottom: 5px; display: block; }
         .btn-group { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
+        
+        /* 버튼 스타일 */
         .setting-btn { background: #333; color: white; border: 1px solid #555; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
         .setting-btn.active { background: #007bff; border-color: #00bfff; }
         .btn-close { background: #d9534f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 1rem; margin-top: 10px; }
         .btn-save { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
         .btn-reset { background: #d9534f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
-        .btn-secret { background: transparent; border: none; color: #333; font-size: 0.8rem; margin-top: 30px; cursor: pointer; transition: 0.3s; }
-        .btn-secret:hover { color: #d000ff; text-shadow: 0 0 5px #d000ff; }
+        
+        /* 코드 입력창 */
+        .code-input-group { display: flex; gap: 5px; justify-content: center; margin-top: 10px; }
+        #codeInput { padding: 8px; border-radius: 5px; border: 1px solid #555; background: #111; color: white; width: 60%; }
+        #btnRedeem { padding: 8px 15px; border-radius: 5px; border: none; background: #007bff; color: white; cursor: pointer; font-weight: bold; }
 
-        /* 해킹 메뉴 */
-        #hackMenu {
-            display: none; position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 320px;
-            background-color: rgba(0, 0, 0, 0.95);
-            border: 2px solid #00ff00; border-radius: 10px;
-            padding: 15px; z-index: 3000;
-            box-shadow: 0 0 30px #00ff00;
-            font-family: 'Courier New', Courier, monospace; text-align: left;
-        }
-        .hack-title { color: #00ff00; font-size: 1.2rem; margin-bottom: 10px; border-bottom: 1px solid #00ff00; padding-bottom: 5px; text-align: center; }
-        .hack-row { margin-bottom: 10px; }
-        .hack-label { color: #00ff00; font-size: 0.8rem; display: block; margin-bottom: 3px; }
-        .hack-select { width: 100%; background: #001100; color: #00ff00; border: 1px solid #00ff00; padding: 5px; font-family: 'Courier New', monospace; }
-        .hack-btn { width: 100%; background: #003300; color: #00ff00; border: 1px solid #00ff00; padding: 8px; margin-top: 5px; cursor: pointer; font-weight: bold; }
-        .hack-btn:hover { background: #00ff00; color: black; }
-        .hack-close { position: absolute; top: 5px; right: 10px; color: #00ff00; cursor: pointer; font-weight: bold; }
+        /* 색상/테마 버튼 */
+        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
+        .special-bg-btn { background: #444; color: #888; border: 1px solid #555; padding: 8px 12px; border-radius: 5px; cursor: not-allowed; width: 100%; margin-bottom: 5px; font-size: 0.9rem; transition: all 0.3s; }
+        .special-bg-btn.unlocked { background: #007bff; color: white; border-color: #00bfff; cursor: pointer; box-shadow: 0 0 10px #007bff; }
 
-        /* 자동화 패널 */
-        .control-panel {
-            background: #222; border: 2px solid #555; border-radius: 15px;
-            padding: 10px; margin: 10px auto; max-width: 550px;
-            display: flex; flex-direction: column; gap: 8px;
+        /* --- [리메이크된 핵 메뉴 스타일] --- */
+        #hackMenu { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 350px; 
+            background-color: rgba(10, 15, 10, 0.98); 
+            border: 2px solid #33ff00; 
+            border-radius: 5px; 
+            padding: 0; 
+            z-index: 3000; 
+            box-shadow: 0 0 40px rgba(51, 255, 0, 0.4), inset 0 0 20px rgba(51, 255, 0, 0.1); 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            text-align: left; 
+            color: #33ff00; 
         }
-        .auto-btn { padding: 10px; font-size: 1.1rem; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .hack-header {
+            background: #0f1a0f;
+            color: #33ff00;
+            padding: 8px 15px;
+            font-weight: bold;
+            border-bottom: 1px solid #33ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 1px;
+        }
+        .hack-body {
+            padding: 15px;
+        }
+        .hack-row { margin-bottom: 15px; }
+        .hack-label { font-size: 0.8rem; opacity: 0.8; display: block; margin-bottom: 4px; }
+        .hack-select { 
+            width: 100%; 
+            background: #000; 
+            color: #33ff00; 
+            border: 1px solid #33ff00; 
+            padding: 6px; 
+            font-family: inherit; 
+            outline: none;
+        }
+        .hack-btn { 
+            width: 100%; 
+            background: #002200; 
+            color: #33ff00; 
+            border: 1px solid #33ff00; 
+            padding: 10px; 
+            margin-top: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-family: inherit;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .hack-btn:hover {
+            background: #33ff00;
+            color: #000;
+            box-shadow: 0 0 15px #33ff00;
+        }
+        .hack-close { 
+            color: #ff3333; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.1rem;
+        }
+        .hack-close:hover { text-shadow: 0 0 5px #ff3333; }
+
+        /* 컨트롤 패널 */
+        .control-panel { background: var(--panel-bg); border: 2px solid #555; border-radius: 15px; padding: 10px; margin: 10px auto; max-width: 550px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        .auto-btn { width: 100%; padding: 10px; font-size: 1.1rem; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .auto-btn.off { background: #d9534f; color: white; }
         .auto-btn.on { background: #28a745; color: white; box-shadow: 0 0 15px #28a745; }
-        .autosell-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; background: #111; padding: 8px; border-radius: 10px; }
-        .autosell-label { font-weight: bold; margin-bottom: 3px; width: 100%; font-size: 0.9rem; }
+        .autosell-container { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 10px; }
         .filter-btn { padding: 4px 8px; border: 2px solid #555; background: #333; color: #aaa; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
         .filter-btn.active { background: #d9534f; color: white; border-color: #ff0000; }
+        
+        /* 합성 NPC 스타일 */
+        .fusion-npc-container {
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+            background: linear-gradient(135deg, #222, #444);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 95%;
+            box-shadow: 0 0 15px rgba(0,255,255,0.3);
+        }
+        .fusion-npc-container:active { transform: scale(0.95); }
+        .fusion-npc-img { width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 5px white); }
+        .fusion-text { font-size: 1.2rem; font-weight: bold; color: #00ffff; text-shadow: 0 0 5px #000; }
 
         /* 상태창 */
-        .stats-container {
-            background-color: #222; padding: 10px; border-radius: 15px; display: inline-block;
-            margin-bottom: 20px; border: 3px solid #fff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); min-width: 300px;
-        }
-        .stat-item { font-size: 1.3rem; margin: 5px 0; }
+        .stats-container { background-color: var(--panel-bg); padding: 10px; border-radius: 15px; display: inline-block; margin-bottom: 20px; border: 3px solid #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); min-width: 300px; }
+        .stat-item { font-size: 1.3rem; margin: 5px 0; color: #fff; }
         .coin-text { color: #00ffff; font-weight: bold; text-shadow: 0 0 5px #0000ff; }
         .income-text { color: #00ff00; font-weight: bold; text-shadow: 0 0 5px #006400; }
 
         /* 상점 */
         .shop-container { display: flex; justify-content: center; margin-bottom: 30px; }
-        .shop-card {
-            background: linear-gradient(135deg, #000, #333); 
-            border: 4px solid; 
-            border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1;
-            padding: 20px; width: 280px; cursor: pointer; transition: transform 0.1s;
-            box-shadow: 0 0 30px rgba(255,255,255,0.2); position: relative;
-        }
+        .shop-card { background: linear-gradient(135deg, #000, #333); border: 4px solid; border-image: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) 1; padding: 20px; width: 280px; cursor: pointer; transition: transform 0.1s; box-shadow: 0 0 30px rgba(255,255,255,0.2); position: relative; }
         .shop-card:active { transform: scale(0.95); }
         .shop-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; background: -webkit-linear-gradient(#eee, #333); -webkit-background-clip: text; }
         .shop-price { font-size: 1.4rem; color: #ffd700; font-weight: bold; margin-bottom: 8px; }
         .shop-desc { font-size: 0.9rem; color: #aaa; line-height: 1.4; }
-        .prob-info { font-size: 0.75rem; color: #777; margin-top: 8px; text-align: left; background: #111; padding: 8px; border-radius: 5px;}
 
         /* 메시지 */
-        #messageArea { height: 35px; font-size: 1.3rem; font-weight: bold; color: #fff; margin-bottom: 15px; text-shadow: 2px 2px 4px black; }
+        #messageArea { height: 35px; font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; text-shadow: 2px 2px 4px black; }
 
         /* 인벤토리 */
-        #inventory { 
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 10px; 
-            min-height: 200px;
-        }
-        .pet-card {
-            background-color: #2a2a2a; border-radius: 15px; width: 140px; padding: 8px; text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); animation: popIn 0.4s ease-out;
-            display: flex; flex-direction: column; align-items: center; position: relative;
-            border: 2px solid transparent; 
-        }
-        
-        .img-wrapper { position: relative; width: 90px; height: 90px; margin-bottom: 5px; background: rgba(0,0,0,0.2); border-radius: 10px;}
-        .pet-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
-        
+        #inventory { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 10px; min-height: 200px; }
+        .pet-card { background-color: #2a2a2a; border-radius: 15px; width: 140px; padding: 8px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); animation: popIn 0.4s ease-out; display: flex; flex-direction: column; align-items: center; position: relative; border: 2px solid transparent; }
+        .img-wrapper { position: relative; width: 90px; height: 90px; margin-bottom: 5px; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; }
+        .pet-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); transition: filter 0.3s; }
         .pet-name { font-weight: bold; font-size: 0.8rem; margin-bottom: 4px; color: #fff; min-height: 2.5em; display: flex; align-items: center; justify-content: center; word-break: keep-all; line-height: 1.2;}
         .pet-stat { font-size: 0.8rem; color: #00ff00; font-weight: bold; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 5px; margin-bottom: 6px;}
-        .pet-rarity { font-size: 0.65rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
-
+        .pet-level { position: absolute; top: 5px; right: 5px; background: #ff0000; color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; box-shadow: 0 0 5px black; }
+        .pet-rarity-badge { font-size: 0.65rem; color: #aaa; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
         .btn-sell { background-color: #d9534f; color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.75rem; width: 100%; margin-top: auto; }
 
-        /* 등급 스타일 */
+        /* 흰색 배경 제거 (Multiply 효과) */
+        .remove-white-bg { mix-blend-mode: multiply; }
+
+        /* 펫 등급 스타일 */
         .common { border-color: #b0b0b0; } 
         .rare { border-color: #00bfff; box-shadow: 0 0 5px #00bfff; } 
         .epic { border-color: #d000ff; box-shadow: 0 0 8px #d000ff; }
         .legendary { border-color: #ffcc00; box-shadow: 0 0 15px #ffcc00; animation: glow 2s infinite; }
-        .secret { border-color: #9932cc; box-shadow: 0 0 15px #9932cc; }
-        .mythical { border: 3px solid #00ffff; background: linear-gradient(180deg, #001a1a, #003333); box-shadow: 0 0 25px #00ffff; animation: mythicalGlow 1.5s infinite alternate; }
+        .secret { border: 4px solid transparent !important; border-image: linear-gradient(to bottom, #000 0%, #fff 50%, #000 100%) 1 !important; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5) !important; }
+        .mythical, .god { border: 3px solid #00ffff; background: linear-gradient(180deg, #001a1a, #003333); box-shadow: 0 0 25px #00ffff; animation: mythicalGlow 1.5s infinite alternate; }
+        .og { border: 4px solid transparent !important; border-image: linear-gradient(180deg, #f7e500 0%, #C9BA00 25%, #988D00 50%, #716900 75%, #000 100%) 1 !important; box-shadow: 0 0 20px #f7e500 !important; animation: ogPulse 2s infinite alternate; }
+
+        /* 합성(퓨전) 레벨 스타일 및 캐릭터 색상 변조 */
+        
+        /* Lv2: 노랑 (Yellow) */
+        .fusion-2 { border-color: #FFFF00 !important; box-shadow: 0 0 10px #FFFF00 !important; }
+        .fusion-2 .pet-img { filter: sepia(1) saturate(10) hue-rotate(0deg) !important; }
+
+        /* Lv3: 하늘 (Sky Blue) */
+        .fusion-3 { border-color: #87CEEB !important; box-shadow: 0 0 12px #87CEEB !important; }
+        .fusion-3 .pet-img { filter: hue-rotate(180deg) brightness(1.2) !important; }
+
+        /* Lv4: 무지개 (Rainbow) - 색상 변조는 애니메이션으로 */
+        .fusion-4 { border: 3px solid transparent !important; background-image: linear-gradient(#2a2a2a, #2a2a2a), linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); background-origin: border-box; background-clip: content-box, border-box; box-shadow: 0 0 15px rgba(255,255,255,0.5); animation: rainbowBorder 3s infinite linear; }
+        .fusion-4 .pet-img { animation: rainbowFilter 3s infinite linear; }
+
+        /* Lv5: 용암 (Lava/Red) */
+        .fusion-5 { border-color: #CF1020 !important; box-shadow: 0 0 20px #CF1020, inset 0 0 10px #CF1020 !important; animation: glowRed 1s infinite alternate; }
+        .fusion-5 .pet-img { filter: sepia(1) saturate(5) hue-rotate(-50deg) contrast(1.2) !important; }
+
+        /* Lv6: 보라 (Purple) */
+        .fusion-6 { border-color: #800080 !important; box-shadow: 0 0 15px #800080 !important; }
+        .fusion-6 .pet-img { filter: hue-rotate(260deg) saturate(1.5) !important; }
+
+        /* Lv7: 방사능 (Neon Green) */
+        .fusion-7 { border-color: #39FF14 !important; box-shadow: 0 0 20px #39FF14 !important; animation: pulseGreen 0.5s infinite; }
+        .fusion-7 .pet-img { filter: hue-rotate(90deg) saturate(3) brightness(1.2) !important; }
+
+        /* Lv8: 캔디 (Pink) */
+        .fusion-8 { border-color: #FFC0CB !important; box-shadow: 0 0 15px #FF69B4 !important; background: repeating-linear-gradient(45deg, #2a2a2a, #2a2a2a 10px, #3a2a2a 10px, #3a2a2a 20px); }
+        .fusion-8 .pet-img { filter: hue-rotate(300deg) saturate(1.5) !important; }
+
+        /* Lv9: 블러드 (Dark Red) */
+        .fusion-9 { border-color: #880000 !important; box-shadow: 0 0 25px #ff0000 !important; background: #200; }
+        .fusion-9 .pet-img { filter: sepia(1) saturate(5) hue-rotate(-50deg) brightness(0.6) !important; }
+
+        /* Lv10: 음양 (Black & White) */
+        .fusion-10 { border: 4px double #fff !important; outline: 2px solid #000; box-shadow: 0 0 30px #fff, inset 0 0 20px #000 !important; animation: yinyangSpin 5s infinite linear; }
+        .fusion-10 .pet-img { filter: grayscale(1) contrast(2) brightness(1.2) !important; }
 
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
         @keyframes glow { 0%, 100% { box-shadow: 0 0 10px #ffcc00; } 50% { box-shadow: 0 0 25px #ffff00; } }
         @keyframes mythicalGlow { 0% { box-shadow: 0 0 15px #00ffff; transform: translateY(0); } 100% { box-shadow: 0 0 40px #00ffff; transform: translateY(-3px); } }
+        @keyframes ogPulse { from { box-shadow: 0 0 15px #f7e500; } to { box-shadow: 0 0 35px #f7e500; } }
+        @keyframes rainbowBorder { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        @keyframes rainbowFilter { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        @keyframes glowRed { from { box-shadow: 0 0 10px #CF1020; } to { box-shadow: 0 0 25px #FF4500; } }
+        @keyframes pulseGreen { 0% { box-shadow: 0 0 10px #39FF14; } 50% { box-shadow: 0 0 25px #39FF14; } 100% { box-shadow: 0 0 10px #39FF14; } }
         
-        /* 저장 알림 토스트 */
-        #saveToast {
-            visibility: hidden; min-width: 250px; margin-left: -125px;
-            background-color: #333; color: #fff; text-align: center;
-            border-radius: 2px; padding: 16px; position: fixed; z-index: 3000;
-            left: 50%; bottom: 30px; font-size: 17px; border: 1px solid #00ff00;
-        }
+        #saveToast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 3000; left: 50%; bottom: 30px; font-size: 17px; border: 1px solid #00ff00; }
         #saveToast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
     </style>
 </head>
 <body class="pc-mode">
 
-    <!-- 저장 완료 토스트 -->
     <div id="saveToast">💾 저장되었습니다! (Saved)</div>
+    
+    <!-- 행운 상태창 -->
+    <div id="luckStatus">🍀 Luck x1.0 (0s)</div>
 
-    <!-- 설정 버튼 -->
     <button class="btn-settings-open" onclick="openSettings()">⚙️ 설정</button>
 
     <!-- 설정 모달 -->
     <div id="settingsModal">
         <div class="settings-content">
             <div class="settings-title">SETTINGS</div>
+            
             <div class="settings-section">
-                <span class="settings-label">Language</span>
-                <div class="btn-group">
-                    <button class="setting-btn active" id="btnKo" onclick="setLanguage('ko')">한국어</button>
-                    <button class="setting-btn" id="btnEn" onclick="setLanguage('en')">English</button>
-                    <button class="setting-btn" id="btnJp" onclick="setLanguage('jp')">日本語</button>
-                    <button class="setting-btn" id="btnCn" onclick="setLanguage('cn')">中文</button>
+                <span class="settings-label">Redeem Code (보상 코드)</span>
+                <div class="code-input-group">
+                    <input type="text" id="codeInput" placeholder="Code here...">
+                    <button id="btnRedeem" onclick="redeemCode()">입력</button>
                 </div>
             </div>
+
+            <div class="settings-section">
+                <span class="settings-label">Background Color</span>
+                <div class="btn-group">
+                    <button class="color-btn" style="background:#000;" onclick="setBg('black')"></button>
+                    <button class="color-btn" style="background:#fff;" onclick="setBg('white')"></button>
+                    <button class="color-btn" style="background:#006400;" onclick="setBg('green')"></button>
+                    <button class="color-btn" style="background:#00008b;" onclick="setBg('blue')"></button>
+                    <button class="color-btn" style="background:#8b0000;" onclick="setBg('red')"></button>
+                    <button class="color-btn" style="background:#ff69b4;" onclick="setBg('pink')"></button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <span class="settings-label">Special Themes</span>
+                <button id="btnBgSecret" class="special-bg-btn" onclick="setBg('secret')">🔳 Secret Theme (Locked)</button>
+                <button id="btnBgOg" class="special-bg-btn" onclick="setBg('og')">👑 OG Theme (Locked)</button>
+                <button id="btnBgRainbow" class="special-bg-btn" onclick="setBg('rainbow')">🌈 Rainbow Theme (Locked)</button>
+            </div>
+
             <div class="settings-section">
                 <span class="settings-label">Screen Mode</span>
                 <div class="btn-group">
@@ -203,409 +309,533 @@
                     <button class="setting-btn" id="btnModeMobile" onclick="setPlatform('mobile')">Mobile</button>
                 </div>
             </div>
+
             <div class="settings-section">
-                <span class="settings-label">Data Management</span>
                 <div class="btn-group">
                     <button class="btn-save" onclick="saveGame(true)">💾 저장 (Save)</button>
                     <button class="btn-reset" onclick="resetGame()">🗑️ 초기화 (Reset)</button>
                 </div>
             </div>
+
+            <!-- 핵 버튼 삭제됨 -->
+
             <button class="btn-close" onclick="closeSettings()">닫기</button>
-            <button class="btn-secret" onclick="openHackMenu()">???</button>
         </div>
     </div>
 
-    <!-- 해킹 메뉴 -->
+    <!-- 리메이크된 해킹 메뉴 -->
     <div id="hackMenu">
-        <span class="hack-close" onclick="closeHackMenu()">X</span>
-        <div class="hack-title">💻 HACKER CONSOLE</div>
-        <div class="hack-row">
-            <label class="hack-label">SELECT PET:</label>
-            <select id="hackPetSelect" class="hack-select"></select>
+        <div class="hack-header">
+            <span>SYSTEM_OVERRIDE_V33</span>
+            <span class="hack-close" onclick="closeHackMenu()">[✖]</span>
         </div>
-        <div class="hack-row" style="color: #555; font-size: 0.8rem;">
-            * 특성 시스템이 삭제되어 펫 소환만 가능합니다.
+        <div class="hack-body">
+            <div class="hack-row">
+                <label class="hack-label">TARGET_PET_ID:</label>
+                <select id="hackPetSelect" class="hack-select"></select>
+            </div>
+            <button class="hack-btn" onclick="hackSpawnCustom()">[ EXECUTE SPAWN ]</button>
+            <button class="hack-btn" onclick="hackAddMoney(1000000000000000)">[ INJECT 1.0Q COINS ]</button>
+            <button class="hack-btn" onclick="activateLuck(100, 600)">[ BOOST LUCK_x100 ]</button>
         </div>
-        <button class="hack-btn" onclick="hackSpawnCustom()">🔥 SPAWN PET 🔥</button>
-        <button class="hack-btn" onclick="hackAddMoney(1000000000000000)">💰 +1경 코인</button>
     </div>
 
-    <h1 id="gameTitle">🧠 브레인롯 훔치기</h1>
+    <!-- 제목 클릭 4번 하면 해킹 메뉴 오픈 (수정됨) -->
+    <h1 id="gameTitle" onclick="triggerSecret()">🧠 브레인롯 훔치기 V33</h1>
 
-    <!-- 자동화 패널 -->
     <div class="control-panel">
-        <button id="btnAutoGacha" class="auto-btn off" onclick="toggleAutoGacha()">
-            🔄 자동 뽑기: OFF
-        </button>
+        <button id="btnAutoGacha" class="auto-btn off" onclick="toggleAutoGacha()">🔄 자동 뽑기: OFF</button>
+        
+        <!-- 합성 NPC 버튼 -->
+        <div class="fusion-npc-container" onclick="autoFuseAll()">
+            <img src="https://i.namu.wiki/i/HJ2Tr0tUwEzlUs3Qt-nWtsTQqZDSJTBazheCaHqcgc9j2Q_t9Qh9VQLlrBtvKA2x6ZdMuLMPxtDC5RClqK9uETzh9cmsC3D1wtQOHxCDrMEhi8y2g7VMInW5nOJqO-YcztjcooswdBQoGddXII5LJQ.webp" class="fusion-npc-img" alt="Fusion NPC">
+            <span class="fusion-text">합성하기 (CLICK!)</span>
+        </div>
+
         <div class="autosell-container">
-            <div class="autosell-label" id="lblAutoSell">🗑️ 자동 판매 (선택 시 즉시 판매)</div>
+            <div style="width:100%; color:#fff; font-size:0.8rem; margin-bottom:3px;">🗑️ 자동 판매 (합성 재료도 판매되니 주의!)</div>
             <button class="filter-btn" onclick="toggleAutoSell('common')" id="filter-common">일반</button>
             <button class="filter-btn" onclick="toggleAutoSell('rare')" id="filter-rare">희귀</button>
-            <button class="filter-btn" onclick="toggleAutoSell('epic')" id="filter-epic">초희귀</button>
+            <button class="filter-btn" onclick="toggleAutoSell('epic')" id="filter-epic">에픽</button>
             <button class="filter-btn" onclick="toggleAutoSell('legendary')" id="filter-legendary">전설</button>
+            <button class="filter-btn" onclick="toggleAutoSell('god')" id="filter-god">갓</button>
             <button class="filter-btn" onclick="toggleAutoSell('secret')" id="filter-secret">시크릿</button>
         </div>
     </div>
 
     <div class="stats-container">
-        <div class="stat-item"><span id="txtCoin">💰 코인:</span> <span id="coinDisplay" class="coin-text">400</span></div>
+        <div class="stat-item"><span id="txtCoin">💰 코인:</span> <span id="coinDisplay" class="coin-text">1000</span></div>
         <div class="stat-item"><span id="txtIncome">⚡ 초당 수입:</span> <span id="cpsDisplay" class="income-text">0</span></div>
     </div>
 
     <div class="shop-container">
         <div class="shop-card" onclick="buyGacha()">
-            <div class="shop-title" id="txtBoxUltimate">🌌 ULTIMATE BOX</div>
-            <div class="shop-price">200 <span class="currency">Coin</span></div>
-            <div class="shop-desc" id="descBoxUltimate">
+            <div class="shop-title">🌌 ULTIMATE BOX</div>
+            <div class="shop-price"><span id="gachaPrice">200</span> Coin</div>
+            <div class="shop-desc">
                 모든 펫이 나오는 유일한 상자<br>
-                수입이 높을수록 확률 극악!
-            </div>
-            <div class="prob-info">
-                🐘 0.01% | 🐲 0.015% | 🍪 0.04%<br>
-                🕶️ 0.09% | 🌮 0.1% | 🤡 2.5%
+                구매 시 가격 2배 (Max 10억)<br>
+                <span style="color:#00ff00; font-size:0.8rem;">(행운 물약 적용됨)</span>
             </div>
         </div>
     </div>
 
     <div id="messageArea"></div>
 
-    <h2 id="txtInventory">🎒 인벤토리 (강한 순서 자동 정렬)</h2>
+    <h2 id="txtInventory">🎒 인벤토리 (합성: NPC 클릭)</h2>
     <div id="inventory"></div>
 
     <script>
-        const translations = {
-            ko: { title: "🧠 브레인롯 훔치기 V20", coin: "💰 코인:", income: "⚡ 초당 수입:", boxUltimate: "🌌 얼티밋 상자", boxDesc: "모든 펫 포함! (200코인)", inventory: "🎒 인벤토리", sell: "💰 팔기", getMsg: "획득!!!", unit: "조", currency: "코인", autoGachaOn: "🔄 자동 뽑기: ON", autoGachaOff: "🔄 자동 뽑기: OFF", lblAutoSell: "🗑️ 자동 판매 필터" },
-            en: { title: "🧠 Brainrot Stealing V20", coin: "💰 Coins:", income: "⚡ Income/s:", boxUltimate: "🌌 ULTIMATE BOX", boxDesc: "Contains ALL pets! (200c)", inventory: "🎒 Inventory", sell: "💰 Sell", getMsg: "Got it!!!", unit: "T", currency: "Coins", autoGachaOn: "🔄 Auto Gacha: ON", autoGachaOff: "🔄 Auto Gacha: OFF", lblAutoSell: "🗑️ Auto Sell Filter" },
-            jp: { title: "🧠 ブレインロット泥棒 V20", coin: "💰 コイン:", income: "⚡ 秒間収入:", boxUltimate: "🌌 アルティメット箱", boxDesc: "全ペット入り！(200c)", inventory: "🎒 インベントリ", sell: "💰 売る", getMsg: "ゲット!!!", unit: "兆", currency: "コイン", autoGachaOn: "🔄 自動ガチャ: ON", autoGachaOff: "🔄 自動ガチャ: OFF", lblAutoSell: "🗑️ 自動売却" },
-            cn: { title: "🧠 脑腐偷窃模拟 V20", coin: "💰 金币:", income: "⚡ 秒收入:", boxUltimate: "🌌 终极宝箱", boxDesc: "包含所有宠物！(200c)", inventory: "🎒 背包", sell: "💰 出售", getMsg: "获得了!!!", unit: "兆", currency: "金币", autoGachaOn: "🔄 自动抽奖: ON", autoGachaOff: "🔄 自动抽奖: OFF", lblAutoSell: "🗑️ 自动出售过滤器" }
-        };
-
-        let currentLang = 'ko';
-        let coins = 400; 
+        // --- 변수 및 설정 ---
+        let coins = 1000;
         let incomePerSecond = 0;
         let myPets = [];
         let isAutoGacha = false;
         let autoGachaInterval = null;
-        let autoSellFilters = { common: false, rare: false, epic: false, legendary: false, secret: false };
+        let autoSellFilters = { common: false, rare: false, epic: false, legendary: false, god: false, secret: false };
+        let gachaCost = 200;
+        const maxGachaCost = 1000000000;
+        let currentBg = 'black';
+        let luckMultiplier = 1;
+        let luckEndTime = 0;
+        let usedCodes = [];
 
-        // --- 펫 데이터 (모든 특성 삭제됨) ---
+        // 시크릿 메뉴 트리거용 변수
+        let secretClicks = 0;
+        let secretResetTimer = null;
+
+        // 펫 데이터
         const allPets = [
-            // OG (Mythical)
-            { name: { ko: "스트루 배리 엘리 펀트", en: "Strawberry Elephant", jp: "ストロベリーエレファント", cn: "草莓象" }, income: 550000000, rarity: "OG", class: "mythical", sellPrice: 200000000, img: "https://i.namu.wiki/i/6TSF60r7sy5c4ygq8oXq20smrQb_FtqRx6JHsZreJAE25VRxWZSBcfZE9OK2AwKQgy7UXReBUzb9-Rwnls8-JVodj195mqWlXCCGf42j3Iu4Tt1DolDLORXfkolpZzcneWOtaagqYkvv38pzAKhN3A.webp", chance: 0.01 },
-            { name: { ko: "미야울", en: "Miyaul", jp: "ミヤウル", cn: "喵呜" }, income: 400000000, rarity: "OG", class: "mythical", sellPrice: 100000000, img: "https://i.namu.wiki/i/0kfP_UFRcHtWZ8dDHTOycPXAeYBmP0EfMk5D1nta0o5s1xbPRwv8ckHvLeNhQ7qJCWD6qvl4QOuxcYsD68ekD59XglGoHslueVZ5mPkW5j5z6CI9VajKrqv2Rux-N9szbrePBJpRFr2xMe818mErKw.webp", chance: 0.02 },
+            // OG
+            { name: "세미", income: 1000000000000, rarity: "OG", class: "og", sellPrice: 500000000000, img: "https://i.namu.wiki/i/gfAt2lBAxpzdA9X1cBmYDz_4F2xF14FFMrVBZkH5avIvKz4zOxhvVCzjswVLO8DSn-U3rRzP9EeWRXuTF8nEHA.webp", chance: 0.001 },
+            { name: "잘델리 라쿠니니", income: 390000000, rarity: "OG", class: "og", sellPrice: 195000000, img: "https://i.namu.wiki/i/VDXijsgXo7gSLYBQtbYlhG1aKSjOE9uFMfJP0Zdo6yB2hQy-eb5gurjhbiqurj4yDr3JG03SQHTXUZ9HLSs8ZrsuUS-TIjcyPnFSDLf5DVEBrSAIrg2xQGa5YQQuQLBLOrkN-dy9XT1oEDatabQSBg.webp", chance: 0.003 },
+            { name: "게스트 666", income: 666600000, rarity: "OG", class: "og", sellPrice: 333300000, img: "https://i.namu.wiki/i/UU_Db9xY3wiuZBJAHl3qQ6R_jszkWWcvnYJ9eYgoN9bmwR8s4fl2-L9hGcJYXsMCrJJetK3kX9AgOjEB9penRJNnFDMvaXVIQm43tJLaTGt-NBlVWYc9ZjLnf_XWo6Mf92JBW-SDfCxTPMy6L85FUQ.webp", chance: 0.005 },
+            { name: "스트루 배리 엘리 펀트", income: 550000000, rarity: "OG", class: "og", sellPrice: 200000000, img: "https://i.namu.wiki/i/6TSF60r7sy5c4ygq8oXq20smrQb_FtqRx6JHsZreJAE25VRxWZSBcfZE9OK2AwKQgy7UXReBUzb9-Rwnls8-JVodj195mqWlXCCGf42j3Iu4Tt1DolDLORXfkolpZzcneWOtaagqYkvv38pzAKhN3A.webp", chance: 0.01 },
             
-            // Secret (All others moved here)
-            { name: { ko: "드래곤 진저니", en: "Dragon Gingerni", jp: "ドラゴンジンジャー", cn: "姜饼龙" }, income: 300000000, rarity: "시크릿", class: "secret", sellPrice: 150000000, img: "https://i.namu.wiki/i/vMzuv5eLDOeqR2mzOwYKgY5YyLz2iJNX-WlmNLakwB5D9fPvL2sNseR5sa7R58lmTVNpfLIb0HFhdEWZsBJGHdAu7neK8q-x4ZvDFkFahCbGUflwmNTNTqC_iQNha4f5az978G57_-Kmc-WIhbEhSg.webp", chance: 0.015 },
-            { name: { ko: "쿠키앤 밀크", en: "Cookie & Milk", jp: "クッキー＆ミルク", cn: "饼干牛奶" }, income: 155000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 45000000, img: "https://i.namu.wiki/i/gswQvd_rbb4c2WSINcITXZjHWX_S0fA1I1uSkBE_65z17bGIieLZL0jqhg127BxcxS3oZxbUH4uozaVoPhhCcd8O02bBnP88ELpZqsFfzo7hkx-7XW_mRInMVHwCwNg3bkzRYHSxxotxpe08xtLJVg.webp", chance: 0.04 },
-            { name: { ko: "레이니토 슬래이토", en: "Rainito Slayto", jp: "レイニトスレイト", cn: "雷尼托·斯莱托" }, income: 140000000, rarity: "시크릿", class: "secret", sellPrice: 40000000, img: "https://i.namu.wiki/i/X8fajs7Ip61VfpBYqOwXx1W9doHzx5djvyjOEGfEGix-QAsgIwO4cJIh08mR-YhoHdMMquYhOYbJEYb4v_Vw5pb_W7RLfcAvzybAqifBFhj80-ORoP_hEwyK53EP2OLd8EL3U6WO6PhNVejlMJs4Bw.webp", chance: 0.04 },
-            { name: { ko: "라슈푸림 콤비네이션", en: "La Supreme Combo", jp: "ラ・スプリーム・コンビ", cn: "至尊组合" }, income: 40000000, rarity: "시크릿", class: "secret", sellPrice: 10000000, img: "https://i.namu.wiki/i/W1h1-wdi7tuOWJ2R_IGalHPVXQFCrMURuzvisgtI_uUOnzC2S4RBC7BuwEB8sK4vf70deXNLYqLbyMr532p5K5-URBFhjYjYzDHx6eS3Iyup8e4qVtvNEjZPYofgQyIaRIfPhfiKw3zsgIDtXg325w.webp", chance: 0.09 },
-            { name: { ko: "오르칼래돈", en: "Orcaledon", jp: "オルカレドン", cn: "奥卡莱顿" }, income: 40000000, rarity: "시크릿", class: "secret", sellPrice: 10000000, img: "https://i.namu.wiki/i/eOOd6a50BgkRk8QELPGSWzf7tvATkMs84NJzArCnZDukmFdE-lhOiOjkYLFnAdYBBEyuCWEm7l2vkwspLvguD69HC9tRaMr77gqlF0s-NuPuYkKsEq-a3vqU21y2vAo8s0jUzu846cL2S6mIi_AHqg.webp", chance: 0.09 },
-            { name: { ko: "케투팟 케팟", en: "Ketupat Kepat", jp: "クトゥパット", cn: "马来粽" }, income: 35000000, rarity: "시크릿", class: "secret", sellPrice: 8500000, img: "https://i.namu.wiki/i/qhZRfIEhvqotR_K7XyunSRDrqQ3-qoOtQcus1ft0nrKfWIwFNZGBpqjnM2w2tu2B8dO-I35l1wdyKgMIPvcLiIf8Lwk1Hj5H-bh2ZVFSg00_jF-4-mYLTOD7-QjZwI98sTpZewrTlyfANjNFDIV7OA.webp", chance: 0.1 },
-            { name: { ko: "탕탙 켈렌탕", en: "Tangtat Kelentang", jp: "タンタット", cn: "唐塔特" }, income: 33500000, rarity: "시크릿", class: "secret", sellPrice: 8200000, img: "https://i.namu.wiki/i/9GZl5LMBrJVmvA6Elho88DmMVqBw-xCY9WrLle3xLLmFK4AdfBINrDeYq_OaYaXZOrMFKH_uO8RQauNnivQgJsEEieui4ZfMNqYUtuisqK6kiB4NeuuNwoVTbNs7g9Xk1lGuq801yPMl4t5R_PdEhA.webp", chance: 0.1 },
-            { name: { ko: "머니머니 퍼기", en: "Money Money Puggy", jp: "マネーパグ", cn: "金钱帕格" }, income: 31500000, rarity: "시크릿", class: "secret", sellPrice: 8000000, img: "https://i.namu.wiki/i/rR5WfRm-RMDMTKp4YCQtbmKSQgEPfOHVAm2gACdyGJGv8UmVCByN7I2mlxvINsRTtL_Gx4HaUm54j79ZXlu-pG7eGFjz6fnJvNfzFd86k5n2gRYrEnzR5TokM1QtjWkwZnnfHzyarbGXocP0X3SLfg.webp", chance: 0.11 },
-            { name: { ko: "이빌레돈", en: "Eviledon", jp: "イビレドン", cn: "邪恶顿" }, income: 31500000, rarity: "시크릿", class: "secret", sellPrice: 8000000, img: "https://i.namu.wiki/i/cuZKVjwlCGnV9KKC-ZXS2C5UdEPC4WwAkDpB-kEDAR3kb0sgrZL_TOSZcveOJ72eIv5e4fFrin07RViSMp5CzpcdXcdemvHfKfevAIJFKZeduXP_lsmCBEzxzcWpklcC1ZV1hZnnQHeUAcOSl68v8g.webp", chance: 0.12 },
-            { name: { ko: "세롤라 시니 비디오 시니", en: "Serolla Sini Video Sini", jp: "セローラ・シニ", cn: "塞罗拉·西尼" }, income: 22500000, rarity: "시크릿", class: "secret", sellPrice: 5500000, img: "https://i.namu.wiki/i/SLOUZZ3Y0hNgLQgEcsbQh7L_lW0BYsQOUx4KU1wAzIGy1cp2m9-_XfRVrZGoh10CecmbUmdR64hLZr9EInHoYMvTnlj0cYuTogXOsi8r2JBPwG6hjzFXlmGD5eGxeRc8cPQhrJiqCUGb7sU5H2g_MA.webp", chance: 0.25 },
+            // Secret
+            { name: "드래곤 카멜로니", income: 250000000, rarity: "시크릿", class: "secret", sellPrice: 80000000, img: "https://i.namu.wiki/i/Q2vCmM_9Lzgu3MoLwiOcjd64PwHnplpRqqd6I4LPnXPEyNDzNMPvY-DPykfNN_tE79kldLVspE85fxbnRQLOkBVGdqlCv6AT_7cmAGCTHLeSaMkSEz4U34GxBveUt1MtNNMQTlwzEemmFEzhd7WxEw.webp", chance: 0.03 },
+            { name: "쿠키앤 밀크", income: 155000000, rarity: "시크릿", class: "secret", sellPrice: 4500000, img: "https://i.namu.wiki/i/gswQvd_rbb4c2WSINcITXZjHWX_S0fA1I1uSkBE_65z17bGIieLZL0jqhg127BxcxS3oZxbUH4uozaVoPhhCcd8O02bBnP88ELpZqsFfzo7hkx-7XW_mRInMVHwCwNg3bkzRYHSxxotxpe08xtLJVg.webp", chance: 0.04 },
+            { name: "오르칼래돈", income: 40000000, rarity: "시크릿", class: "secret", sellPrice: 10000000, img: "https://i.namu.wiki/i/eOOd6a50BgkRk8QELPGSWzf7tvATkMs84NJzArCnZDukmFdE-lhOiOjkYLFnAdYBBEyuCWEm7l2vkwspLvguD69HC9tRaMr77gqlF0s-NuPuYkKsEq-a3vqU21y2vAo8s0jUzu846cL2S6mIi_AHqg.webp", chance: 0.09 },
             
-            { name: { ko: "'25'", en: "'25'", jp: "'25'", cn: "'25'" }, income: 25000000, rarity: "시크릿", class: "secret", sellPrice: 5000000, img: "https://i.namu.wiki/i/GsoScUCyBO7wqpqswdeJXxlb-aChORk9p9mr6JBsnVhekN5twChMW0517sVGTTrN7ITqNSDAuukv1r837zNdhLpZBElamDbz3wrwGNaZqYukSruUhNrSByCCnuVoZ7Ehf0SPn895XQWjONEhxW9ldg.webp", chance: 0.15 },
-            { name: { ko: "로스 플래니 토스", en: "Los Planetos", jp: "ロスプラネトス", cn: "洛斯行星" }, income: 18500000, rarity: "시크릿", class: "secret", sellPrice: 3700000, img: "https://i.namu.wiki/i/lFvD9r3kc8vkU-RcCmOh_HXkbMRy-mzwsruu5o9WQfT-7n3vgxMyTtiwhOAcwccJxJuYIwpDkMGnYrp7mIZb5sCvwAbjP6E3M6_o85tvQbIOs_g3me_Efxu5MwQREOXkfBkXPElwhwCHgIL6jVAeTQ.webp", chance: 0.2 },
-            { name: { ko: "치클레 테이리나 노엘 테이리나", en: "Chiclet Teirina Noel", jp: "チクレテイリナ", cn: "奇克莱特·泰里娜" }, income: 15000000, rarity: "시크릿", class: "secret", sellPrice: 3000000, img: "https://i.namu.wiki/i/Urt-8IxIj4V29K1oaEDbW96WxYfu2RoNgJBNczjTZU4c94RI8i1eMwUieQmp6RySKhSCDcOZAiP2jkQLAQFkHjghhY7vlgl2szVE37ulHtYT2pE98lftH69e-W00-_ewv7B6emlTuCRiIC-OkTFTiA.webp", chance: 0.3 },
-            { name: { ko: "로스 콤비네이션", en: "Los Combination", jp: "ロス・コンビネーション", cn: "洛斯组合" }, income: 15000000, rarity: "시크릿", class: "secret", sellPrice: 3000000, img: "https://i.namu.wiki/i/SGGTNguEujJLT8gihof8x8G_UwttE0isPHqrskIOffbfYaawxJIaIVp-bjTRqBsHgx5RZceDQEfMXgTegmXepXVVh8MWYeGle3K0dIeIgK5yulVO3-XpTWb7MGaQ0FKeFqr992s96YAaT_xwRB4Y7Q.webp", chance: 0.4 },
-            { name: { ko: "라그란대 콤비네이션", en: "Lagrande Combo", jp: "ラグランデコンビ", cn: "拉格兰德组合" }, income: 10000000, rarity: "시크릿", class: "secret", sellPrice: 2000000, img: "https://i.namu.wiki/i/wrYcFme78_yGYn07s7NeKMx5xA8rhAm3P3qW7MnGSzccjOOn6dx4t73WLWtIljEVk8kMiuGieLvl4LuTh_WHXjPqi8VXqKv3SZnNJm9j0uRjSl3bWIXu8TU8kfPXWAwDIysoVvnwe2rURNFlF6cHRA.webp", chance: 1.0 },
-            { name: { ko: "로스 부리또", en: "Los Burrito", jp: "ロス・ブリトー", cn: "洛斯卷饼" }, income: 8500000, rarity: "시크릿", class: "secret", sellPrice: 1700000, img: "https://i.namu.wiki/i/zivuDz8g5NHr6OQO-gLKM43rScb1WlNnBA9YUjKq_AgV0xGbVT1n7w419yfPzlVH-F7uJ_aGi336qu1QOx8G1DBrg6tWBQHn0HYsyhouBj8VgS9w5OFdRo9wTt1C9G9-Tl4BMhJAW3PprtBIM6Pipw.webp", chance: 1.2 },
-            { name: { ko: "랑링 버스", en: "Rangring Bus", jp: "ランリンバス", cn: "朗林巴士" }, income: 6000000, rarity: "시크릿", class: "secret", sellPrice: 1500000, img: "https://i.namu.wiki/i/w_nAJxRTwG_B3unFtvQuPlwthVMA0GIa0FN39PXlbhWVvaCCq5KQfe8vaqwxdrR_qFbq3QrHu6Z2etax39Apkw2dBcMfv64H3ZOI-YPKcYTAKpKvU87sifh3WJD9EVy3gp-g_0ekJViKFUCikt34JA.webp", chance: 1.3 },
-            { name: { ko: "로스 케사디아 크로코 디어", en: "Los Quesadilla Crocodile", jp: "ロス・ケサディーヤ", cn: "洛斯凯萨迪亚" }, income: 4500000, rarity: "시크릿", class: "secret", sellPrice: 900000, img: "https://i.namu.wiki/i/3CA9uE0g3CMVxgAWvxT9BY9bo9R-rdviwMZ5FRZ6ptuB4U6hpR8Dhtfc_p--GBt1HM7Ol9hhMVNUjPGffg-2kXpr-bU81vLCHPdSwA2njKX_OrtvdL_LEIaKbTuA8izVs3qOYgv2JW9WMq2rgH1pYA.webp", chance: 1.4 },
-            { name: { ko: "로스 라쿠카라차", en: "Los La Cucaracha", jp: "ロス・ラ・クカラチャ", cn: "洛斯蟑螂" }, income: 1500000, rarity: "시크릿", class: "secret", sellPrice: 300000, img: "https://i.namu.wiki/i/0pfVEuimqkHeGlhmgcV97psa8z8PAwgEtV86FQrim6S81tLLMH_a75I3JhSnIgdRMPah47ZpMd170ww88ekA5iN2mdtI-9D6RCtOsZxeNIWOzw6MzhpOIYBnTPuf_zvpYaLvCCRe9Lpz4dPoG2IWxw.webp", chance: 1.5 },
-            { name: { ko: "그라이 프시 메두시", en: "Gry Pshi Medushi", jp: "グライプシメドゥーサ", cn: "灰普西美杜莎" }, income: 1000000, rarity: "시크릿", class: "secret", sellPrice: 200000, img: "https://i.namu.wiki/i/pWXKL2xXm668Q7GqW0PYDb_B3GikQTQIpTTFvAc2lt1K68a16PjzEJcFR6xO7gd6PCb9miq_vtyZIzMqHcPdzg.webp", chance: 2.0 },
-            { name: { ko: "라 카르키르쿠르 콤비네이션", en: "La Karkirkur Combo", jp: "ラ・カルキルクル", cn: "拉卡尔基库尔" }, income: 600000, rarity: "초희귀(신규)", class: "epic", sellPrice: 150000, img: "https://i.namu.wiki/i/cmwiOeEeQGiF6tJiqum-NYkGmaBvkZ1T7aoZ_LG8nyT4LBeSquYS5hhiF5qWeQhXVjPWJlSu6sjdrVxrvusLqG_3vYR1LtIlxJucoGkAlbecKzW2ZUG_u89jbadgzv2D_8JdVzPHHuysq18K4FqmXg.webp", chance: 2.5 },
-            { name: { ko: "산태오", en: "Santa Teo", jp: "サンタテオ", cn: "圣诞泰奥" }, income: 800000, rarity: "시크릿", class: "secret", sellPrice: 200000, img: "https://i.namu.wiki/i/jAvZX8lcQtobeDympjfvHSGKbBfURbY65mguknKV_fvqK5P3qHWbJujQ8ea47k5jPKAgPWbJnHVD20K4N89vj1vLyRLPAgANGG1h9eOJpLKBKSdUrqHJmCvwXUParMTQS6PSILvI_IJce6wGsXPRpg.webp", chance: 3.0 },
-            
-            // V19 New Pets
-            { name: { ko: "라 익스트림 콤비네이션", en: "La Extreme Combo", jp: "ラ・エクストリーム", cn: "拉极限组合" }, income: 45000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 11000000, img: "https://i.namu.wiki/i/6vTkuLbDybnG2r4MAZzktRxVre0ic8ua1eXQFIxkv8FpzwXqHgTLbGhTL2jxF0RFZoh00xy7GSYXVayxB8AcxDJ511jXoCgIUgFN6Mgip52SFdKAAEmoTcPYupUdOXHkmrnzULDq17fMCYRe4Tk4ug.webp", chance: 0.08 },
-            { name: { ko: "스웨스 브로스", en: "Swes Bros", jp: "スウェス・ブロス", cn: "斯韦斯兄弟" }, income: 40000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 10000000, img: "https://i.namu.wiki/i/BzveuUp8knHZcbBKKhNPe5Hj6zv0yKDrpNMTv0D0UVFW_oJtINLbFrYzsESwVS3zyEY1QDDxxgpTP05C5w-anZqOqfHEUGKcDzwEqXa_Ll_fsrNi-_SigkDNtyK3BsoWvxPytdp2BLEYNeo_V8FxzA.webp", chance: 0.09 },
-            { name: { ko: "라 타코 콤비네이션", en: "La Taco Combo", jp: "ラ・タコ・コンビ", cn: "拉塔科组合" }, income: 35000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 8500000, img: "https://i.namu.wiki/i/E_BrGN7fQ_f5GmAP3nNGwIiXAlOXpj8a0Ldc7z0uZwRYrh0fIk8xNmAblSb1w7Lg6Z4PvVuCFg2oNwRtyUWbnXRwX6Gew2lW3fYXo1oruNFWfIlPaxawcBpNDjYRXjqH6oE4duZ8wzNGTiQdPSijvg.webp", chance: 0.1 },
-            { name: { ko: "WL", en: "WL", jp: "WL", cn: "WL" }, income: 30000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 7500000, img: "https://i.namu.wiki/i/Pl3XLfeYPn5mvycoqVdWyEJPJ1czA9WEmG5MWpoh-CVh2kKpktISB3C_C4zFyTTDlCXLAn93JXZ8nRhZ3geOHykkcaxcw3-EQOiJFr9F8zNr2PGFiJmYldBbswAh_e4hzBw_Uy_YEC-PZcDKuXkKiw.webp", chance: 0.12 },
-            { name: { ko: "라 줄리 콤비네이션", en: "La Juli Combo", jp: "ラ・ジュリ・コンビ", cn: "拉朱莉组合" }, income: 30000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 7500000, img: "https://i.namu.wiki/i/yY1n5kNe8q7gW8pneJPewGCgCjuYZLDNgt8v9lyNQOdV8CIMZb-LaMR6AD-yCyEtTZc7HTU9joGHWHbyTrP0ekW_XAxrTyqmIGPsm5WhLdhNTBAcCnfpTdWMGPgVJmOEgh9pC7HO2_6TC3UCHVw_VQ.webp", chance: 0.12 },
-            { name: { ko: "라 스품키 콤비네이션", en: "La Spumky Combo", jp: "ラ・スパムキー", cn: "拉斯普基组合" }, income: 30000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 7500000, img: "https://i.namu.wiki/i/QOmnR_PQ9Us7m5-RU3ecHQMdk7-BX3KEDi9jl4qCRf3beAfoRBU8kXlilQ3N5XJmOTyRJtfHpSTyLWgHTuLd8lm9wzhymb_0bdbyJhm9YKLy2PGBEBaKrCrcD8ckworaCaeB9HIaZ19u42ksDlE0YQ.webp", chance: 0.12 },
-            { name: { ko: "칩소와 퀘소", en: "Chipso & Queso", jp: "チップソ＆ケソ", cn: "奇普索与奎索" }, income: 28000000, rarity: "시크릿(신규)", class: "secret", sellPrice: 7000000, img: "https://i.namu.wiki/i/SYGmNnKpf8UA_oo2Rs1FvypWpSGVQeE82yfR-gBSIF5ABJ8ZRATIDfCbeaHxkPMdnOhijz-WlEfr19SJeub2kmEW2VSY_kjLBxfn4W4aSsDIIjQzeVVxi3v4obwfjzUiM3V0Bbl6WOj5TRC60wZLyw.webp", chance: 0.13 },
+            // New V33 Pets
+            { name: "로스 브로스", income: 24000000, rarity: "시크릿", class: "secret", sellPrice: 6000000, img: "https://i.namu.wiki/i/QAVbn3pRnLeMC3xSdgVRgoxrft9LyMTIMxLKIgW-HRmMyN3egtDvyv4P_5ZMOdhZyxQmfoU-N-Kx_QHyLzCvic_qLtClKjQVKYr9OTrbZVTPrSxWjfFMQeO8p8Y-jODlU32EzwxXQvulIGOl_YAsWQ.webp", chance: 0.15 },
+            { name: "로스 모빌리스", income: 22200000, rarity: "시크릿", class: "secret", sellPrice: 5500000, img: "https://i.namu.wiki/i/v8N378-9peOV2NX1uuMrYCnc6BAnu_j0oiuwNT99pDOnT3gFiPzMyvD2hPRs98bCTIK2qNZE6YSnBMbB6lbYxqRkQlCtMAP7vASDYBppOwo_diyaQasAYuacAzbCFuKOwtnjPcShmtv_qnmdxrjbJg.webp", chance: 0.23 },
+            { name: "로스 프리모스", income: 19000000, rarity: "시크릿", class: "secret", sellPrice: 4500000, img: "https://i.namu.wiki/i/Xo3mhwst7nQQZbHzcenCWaNRHy9mAnM9bRWUh9Yatl0-Qt_ZXhqKB1Nus_5gxz5JaX2k1o3uz4LeFE29fyfZd9B71tsoYpfpquVGHOo7jhjt3pRZzXMlxpF5mfhyoc4CIvbXDXQozSh2cjTMpI45pA.webp", chance: 0.2 },
+            { name: "라스 시스", income: 17500000, rarity: "시크릿", class: "secret", sellPrice: 4300000, img: "https://i.namu.wiki/i/sIzyrjPyp3BK-y-zhoJXzl3tQC6ok6yrhSzE4g2Xa7nQfSWmkm0QkdKgyDe_9voVlnXTbbmyulqyjIGiL4J8r4ZjyGoW0hrUWgffyZAp07WAUcN9zsb6zFeSnWXeOxQqru7cXFqURgptGQgF52zC_Q.webp", chance: 0.22 },
 
-            // ... (Rest)
-            { name: { ko: "블랙홀 고트", en: "Blackhole Goat", jp: "ブラックホール・ヤギ", cn: "黑洞山羊" }, income: 400000, rarity: "초희귀", class: "epic", sellPrice: 80000, img: "https://i.namu.wiki/i/G11clqIbv5U99KQZ_vc7OLWPEREhLq9-s-OmHOvosFEc6nhuKrRnVeoAtTMdMKbvBRgmJzTz8J9owHzB6MYNVY8LWGpCMZi85N0b0mgwZ37ZhRjYEPbamAYCDT4GpIVl_1R44n0euT4xzIDp0Nn8nQ.webp", chance: 4.0 },
-            { name: { ko: "로스 오를칼 리토스", en: "Los Orlcal Litos", jp: "ロスオルカルリトス", cn: "洛斯·奥尔卡" }, income: 900, rarity: "전설", class: "legendary", sellPrice: 2500, img: "https://i.namu.wiki/i/DlnbwotDMs9lFz0r4eyGrDsHitXFdCptrmNbQFv6ZoRZ3iCy1ETST_WM3mXLwKNJRpxpRuVo6RAh_psl88pfBmBWwalSDEyYKh3TpwQJsZY3Z2xwOVimdDdCBpAWbaayz4jA4dbo1i4ndCpr7HxgRA.webp", chance: 5.0 },
-            { name: { ko: "피쵸네 마키나", en: "Piccione Machina", jp: "ピチョネマキナ", cn: "机器鸽" }, income: 500, rarity: "초희귀", class: "epic", sellPrice: 1200, img: "https://i.namu.wiki/i/5DTtOoJASjK8mJVTtN-pfDuKZ0hJok0UdaIw6D74KUTPhGEZHea3IeJTA2LReEhVqUYp505agD5wFTn4MgfKdCuHnuY1D6vNBxIpmd9HWpnQq5Urqq7ZVMYmtXD0PE1fq7wCctq55__JS7Xn13v9gw.webp", chance: 7.0 },
-            { name: { ko: "터보 3000", en: "Turbo 3000", jp: "ターボ3000", cn: "涡轮3000" }, income: 200, rarity: "희귀", class: "rare", sellPrice: 500, img: "https://i.namu.wiki/i/UrhZ3POgmnWPlmiX6CA1TYjePe9UDIdAaIGwJXeLDPXSzAaWpOUXEQiIX9mWiLsezbR7sVgCc5fFD9L3gCT8QU9Ty_xwRjEsoKh6fmwu218P5OyZ-Y1QfZwPfabIkP4jJpTqYyhbdEhvemIhHQLl5A.webp", chance: 9.0 },
-            { name: { ko: "피피 키위", en: "Pipi Kiwi", jp: "ピピキウィ", cn: "皮皮猕猴桃" }, income: 12, rarity: "초희귀", class: "epic", sellPrice: 6, img: "https://i.namu.wiki/i/zDv0SzOJaSqbDLXDx8vsQDvcbcF3luF6k00VT9NNBfCzkAc-HgwgTDNmNedAbt92s16M0YwwDEq7RuM6EzI9njrC8xEklirxEeqEYlsKMMWeBjTNIEE4LXzLOK3dU7dpkVFXD0HPZSeLyqRJAgVVBA.webp", chance: 11.0 },
-            { name: { ko: "스비니노 봄봄 비노", en: "Sbinnino", jp: "スビニノ", cn: "斯比尼诺" }, income: 10, rarity: "희귀", class: "rare", sellPrice: 5, img: "https://i.namu.wiki/i/70fYy97CIqXrZYDzgZNv9iQtO6LM8YzPRec79WKQ9PNPxjGeNFQQ0OTzQjlo0WJopkuTh2oNT6zmm40zI4FAld8E90z9LcBnCEP9FmfDMoZbQNJiyTqkMuidhEujnGTRa6WebY0uknvBAdFuqObgrw.webp", chance: 12.0 },
-            { name: { ko: "달파디 페로", en: "Dalpadi Ferro", jp: "ダルパディフェロ", cn: "达帕迪·费罗" }, income: 9, rarity: "희귀", class: "rare", sellPrice: 4, img: "https://i.namu.wiki/i/E6pF9EhddC8Y8vY0DfCjwDfhe5Tf5QhJaUyOza2sXU9kS50e-PPIUdMudPMqTLEqXqWsh6NJLQjsDUTmOGerxytaMHpd6WPUasq0grxIty5j1lnhEKorI9sM6B5NpuIuITbZTOLUESmeUXhTM-hoFA.webp", chance: 13.0 },
-            { name: { ko: "프롤리 프롤라", en: "Prolly Prolla", jp: "プロリプロラ", cn: "普罗利·普罗拉" }, income: 7, rarity: "일반", class: "common", sellPrice: 3, img: "https://i.namu.wiki/i/Bnsp0t-AH32xHo_07o896ZpMjFL_Nqy7NUkm6OdDx_Esp3SppQNYTVnvR6ZPQm-n-F8IiAwmDgJbSo4pH2jZbrbzlQivTTM6XOii_CQXCK6zMJwro1cmpDjwhWlFkuUy3Uqz9GPNrEHfg1eMPhiCwg.webp", chance: 15.0 },
-            { name: { ko: "팀 치즈", en: "Team Cheese", jp: "チームチーズ", cn: "奶酪队" }, income: 5, rarity: "일반", class: "common", sellPrice: 2, img: "https://i.namu.wiki/i/GSd6Tw8GxlFT3f1hPBc64RIF_rjpIkp-Czm3tmgxpXjM1YlS1cqTPXjJggbVcEI_Rt-FwuQTVVo5Q5ZA5Bbqr01hqGo-9xce6CWumCjMTdvLn9XvAy_aUeUcxXHV5b4Z5z-R89MOKWQxI1D3kE0EaA.webp", chance: 17.58 }
+            { name: "세롤라 시니 비디오 시니", income: 22500000, rarity: "시크릿", class: "secret", sellPrice: 5500000, img: "https://i.namu.wiki/i/SLOUZZ3Y0hNgLQgEcsbQh7L_lW0BYsQOUx4KU1wAzIGy1cp2m9-_XfRVrZGoh10CecmbUmdR64hLZr9EInHoYMvTnlj0cYuTogXOsi8r2JBPwG6hjzFXlmGD5eGxeRc8cPQhrJiqCUGb7sU5H2g_MA.webp", chance: 0.25 },
+            { name: "로스 콤비네이션", income: 15000000, rarity: "시크릿", class: "secret", sellPrice: 3000000, img: "https://i.namu.wiki/i/SGGTNguEujJLT8gihof8x8G_UwttE0isPHqrskIOffbfYaawxJIaIVp-bjTRqBsHgx5RZceDQEfMXgTegmXepXVVh8MWYeGle3K0dIeIgK5yulVO3-XpTWb7MGaQ0FKeFqr992s96YAaT_xwRB4Y7Q.webp", chance: 0.4 },
+            { name: "라그란대 콤비네이션", income: 10000000, rarity: "시크릿", class: "secret", sellPrice: 2000000, img: "https://i.namu.wiki/i/wrYcFme78_yGYn07s7NeKMx5xA8rhAm3P3qW7MnGSzccjOOn6dx4t73WLWtIljEVk8kMiuGieLvl4LuTh_WHXjPqi8VXqKv3SZnNJm9j0uRjSl3bWIXu8TU8kfPXWAwDIysoVvnwe2rURNFlF6cHRA.webp", chance: 1.0 },
+            { name: "로스 부리또", income: 8500000, rarity: "시크릿", class: "secret", sellPrice: 1700000, img: "https://i.namu.wiki/i/zivuDz8g5NHr6OQO-gLKM43rScb1WlNnBA9YUjKq_AgV0xGbVT1n7w419yfPzlVH-F7uJ_aGi336qu1QOx8G1DBrg6tWBQHn0HYsyhouBj8VgS9w5OFdRo9wTt1C9G9-Tl4BMhJAW3PprtBIM6Pipw.webp", chance: 1.2 },
+            
+            // God & New Secrets
+            { name: "쿠아드라맛 과 파크라맛", income: 2700000, rarity: "갓(GOD)", class: "god", sellPrice: 650000, img: "https://i.namu.wiki/i/gmNsW_Kq9Jpkuf4Ao5u7GRi2_YDhSe9YXIHTsomAN7oJ4bp7q_EzrVKgorNSV3q_b77ncxCP5GG-qdpVjL3Ox9sWqQwxtmXsc1CPtmY1pzQY8UdgMM10jdS7PJ5KMj8dysPV2zAK7itCDhiSouc9Vg.webp", chance: 1.8, specialStyle: "remove-white-bg" },
+            { name: "노오오 마이 플리즈마", income: 425000, rarity: "갓", class: "god", sellPrice: 100000, img: "https://i.namu.wiki/i/U1fQ75127ymk_dj6KE-QkHxhE0fqS7MYrnLuJnss3U0wN6M1f7NA_Sbn77JCOu7mteNkAT3Tiq36GmrxNjXgacJbgJzh2JvmOzD7mOOGVg5BzXrxeHTow-NMqiFVM1jzTFE_6Xu29y_Ek5UnqSJQOQ.webp", chance: 3.5 },
+            
+            // Etc
+            { name: "블랙홀 고트", income: 400000, rarity: "초희귀", class: "epic", sellPrice: 80000, img: "https://i.namu.wiki/i/G11clqIbv5U99KQZ_vc7OLWPEREhLq9-s-OmHOvosFEc6nhuKrRnVeoAtTMdMKbvBRgmJzTz8J9owHzB6MYNVY8LWGpCMZi85N0b0mgwZ37ZhRjYEPbamAYCDT4GpIVl_1R44n0euT4xzIDp0Nn8nQ.webp", chance: 4.0 },
+            { name: "머니머니 맨", income: 65000, rarity: "전설", class: "legendary", sellPrice: 15000, img: "https://i.namu.wiki/i/rm5KkVvLrLjR8v8ShZiLEAnb21gofjfDM4Ua2q715qcJpAWVEQ2ZIpx4oW16Z-9lUIr5mloVabgj4xLJrJShKd53P46u1TJUCafvRz43zdQkzF0VJddbHQC2sgysyGBCwRH41LOodYEL7I-A7cwB0Q.webp", chance: 4.5 },
+            { name: "로스 오를칼 리토스", income: 900, rarity: "전설", class: "legendary", sellPrice: 2500, img: "https://i.namu.wiki/i/DlnbwotDMs9lFz0r4eyGrDsHitXFdCptrmNbQFv6ZoRZ3iCy1ETST_WM3mXLwKNJRpxpRuVo6RAh_psl88pfBmBWwalSDEyYKh3TpwQJsZY3Z2xwOVimdDdCBpAWbaayz4jA4dbo1i4ndCpr7HxgRA.webp", chance: 5.0 },
+            { name: "터보 3000", income: 200, rarity: "희귀", class: "rare", sellPrice: 500, img: "https://i.namu.wiki/i/UrhZ3POgmnWPlmiX6CA1TYjePe9UDIdAaIGwJXeLDPXSzAaWpOUXEQiIX9mWiLsezbR7sVgCc5fFD9L3gCT8QU9Ty_xwRjEsoKh6fmwu218P5OyZ-Y1QfZwPfabIkP4jJpTqYyhbdEhvemIhHQLl5A.webp", chance: 9.0 },
+            { name: "피피 키위", income: 12, rarity: "초희귀", class: "epic", sellPrice: 6, img: "https://i.namu.wiki/i/zDv0SzOJaSqbDLXDx8vsQDvcbcF3luF6k00VT9NNBfCzkAc-HgwgTDNmNedAbt92s16M0YwwDEq7RuM6EzI9njrC8xEklirxEeqEYlsKMMWeBjTNIEE4LXzLOK3dU7dpkVFXD0HPZSeLyqRJAgVVBA.webp", chance: 11.0 },
+            { name: "프롤리 프롤라", income: 7, rarity: "일반", class: "common", sellPrice: 3, img: "https://i.namu.wiki/i/Bnsp0t-AH32xHo_07o896ZpMjFL_Nqy7NUkm6OdDx_Esp3SppQNYTVnvR6ZPQm-n-F8IiAwmDgJbSo4pH2jZbrbzlQivTTM6XOii_CQXCK6zMJwro1cmpDjwhWlFkuUy3Uqz9GPNrEHfg1eMPhiCwg.webp", chance: 15.0 },
+            { name: "팀 치즈", income: 5, rarity: "일반", class: "common", sellPrice: 2, img: "https://i.namu.wiki/i/GSd6Tw8GxlFT3f1hPBc64RIF_rjpIkp-Czm3tmgxpXjM1YlS1cqTPXjJggbVcEI_Rt-FwuQTVVo5Q5ZA5Bbqr01hqGo-9xce6CWumCjMTdvLn9XvAy_aUeUcxXHV5b4Z5z-R89MOKWQxI1D3kE0EaA.webp", chance: 17.58 }
         ];
 
         const coinDisplay = document.getElementById('coinDisplay');
         const cpsDisplay = document.getElementById('cpsDisplay');
         const inventoryDiv = document.getElementById('inventory');
-        const messageArea = document.getElementById('messageArea');
-        const btnAutoGacha = document.getElementById('btnAutoGacha');
         const settingsModal = document.getElementById('settingsModal');
+        const btnBgSecret = document.getElementById('btnBgSecret');
+        const btnBgOg = document.getElementById('btnBgOg');
+        const btnBgRainbow = document.getElementById('btnBgRainbow');
+        const luckStatus = document.getElementById('luckStatus');
         const hackMenu = document.getElementById('hackMenu');
-        const saveToast = document.getElementById('saveToast');
+        
+        const gachaPriceDisplay = document.getElementById('gachaPrice');
 
-        function openSettings() { settingsModal.style.display = "flex"; }
-        function closeSettings() { settingsModal.style.display = "none"; }
+        // --- 초기화 및 로드 ---
+        function loadGame() {
+            const saved = localStorage.getItem('brainrotSaveV33');
+            if (saved) {
+                const data = JSON.parse(saved);
+                coins = data.coins || 1000;
+                myPets = data.pets || [];
+                gachaCost = data.cost || 200;
+                autoSellFilters = data.filters || {};
+                currentBg = data.bg || 'black';
+                usedCodes = data.usedCodes || [];
+                
+                myPets.forEach(p => { if(!p.level) p.level = 1; });
 
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.querySelectorAll('.btn-group .setting-btn').forEach(btn => btn.classList.remove('active'));
-            if(lang==='ko') document.getElementById('btnKo').classList.add('active');
-            if(lang==='en') document.getElementById('btnEn').classList.add('active');
-            if(lang==='jp') document.getElementById('btnJp').classList.add('active');
-            if(lang==='cn') document.getElementById('btnCn').classList.add('active');
-
-            const t = translations[lang];
-            document.getElementById('gameTitle').innerText = t.title;
-            document.getElementById('txtCoin').innerText = t.coin;
-            document.getElementById('txtIncome').innerText = t.income;
-            document.getElementById('txtBoxUltimate').innerText = t.boxUltimate;
-            document.getElementById('descBoxUltimate').innerHTML = t.boxDesc;
-            document.getElementById('txtInventory').innerText = t.inventory;
-            document.getElementById('lblAutoSell').innerText = t.lblAutoSell;
-            updateAutoGachaBtn();
-            document.querySelectorAll('.currency').forEach(el => el.innerText = t.currency);
-            renderInventory();
-        }
-
-        function setPlatform(mode) {
-            document.getElementById('btnModePC').classList.remove('active');
-            document.getElementById('btnModeMobile').classList.remove('active');
-            if (mode === 'pc') { document.body.className = 'pc-mode'; document.getElementById('btnModePC').classList.add('active'); } 
-            else { document.body.className = 'mobile-mode'; document.getElementById('btnModeMobile').classList.add('active'); }
-        }
-
-        function openHackMenu() {
-            closeSettings();
-            hackMenu.style.display = "block";
-            const petSelect = document.getElementById('hackPetSelect');
-            petSelect.innerHTML = "";
-            allPets.forEach((pet, index) => {
-                const opt = document.createElement('option');
-                opt.value = index;
-                opt.text = pet.name[currentLang] || pet.name['ko'];
-                petSelect.appendChild(opt);
-            });
-        }
-
-        function closeHackMenu() { hackMenu.style.display = "none"; }
-        function hackAddMoney(amount) { coins += amount; updateDisplay(); alert("Money Added!"); }
-
-        function hackSpawnCustom() {
-            const petIndex = document.getElementById('hackPetSelect').value;
-            const selectedBase = allPets[petIndex];
-            let newPet = structuredClone(selectedBase);
-            // No Traits logic
-            incomePerSecond += newPet.income;
-            myPets.push(newPet);
-            renderInventory();
-            updateDisplay();
-            alert(`[HACK SUCCESS]\n${newPet.name['ko']} Spawned!`);
+                if (data.luckEndTime && data.luckEndTime > Date.now()) {
+                    activateLuck(data.luckMultiplier, (data.luckEndTime - Date.now()) / 1000);
+                }
+                
+                setBg(currentBg);
+                renderInventory();
+                updateDisplay();
+                updateIncome();
+                
+                for(const [k, v] of Object.entries(autoSellFilters)){
+                    const btn = document.getElementById(`filter-${k}`);
+                    if(btn && v) btn.classList.add('active');
+                }
+            }
         }
 
         function saveGame(showToast = false) {
             const saveData = {
                 coins: coins,
-                pets: myPets, 
+                pets: myPets,
                 filters: autoSellFilters,
-                lang: currentLang
+                cost: gachaCost,
+                bg: currentBg,
+                usedCodes: usedCodes,
+                luckMultiplier: luckMultiplier,
+                luckEndTime: luckEndTime
             };
-            localStorage.setItem('brainrotSaveV20', JSON.stringify(saveData));
-            
+            localStorage.setItem('brainrotSaveV33', JSON.stringify(saveData));
             if(showToast) {
-                saveToast.className = "show";
-                setTimeout(function(){ saveToast.className = saveToast.className.replace("show", ""); }, 3000);
-            }
-        }
-
-        function loadGame() {
-            const saved = localStorage.getItem('brainrotSaveV20');
-            if (saved) {
-                const data = JSON.parse(saved);
-                coins = data.coins || 400;
-                myPets = data.pets || [];
-                let recalcIncome = 0;
-                myPets.forEach(p => {
-                    p.traits = []; // Ensure traits are removed
-                    recalcIncome += p.income;
-                });
-                incomePerSecond = recalcIncome;
-                
-                autoSellFilters = data.filters || { common: false, rare: false, epic: false, legendary: false, secret: false };
-                if(data.lang) setLanguage(data.lang);
-                
-                for (const [key, value] of Object.entries(autoSellFilters)) {
-                    const btn = document.getElementById(`filter-${key}`);
-                    if(value) btn.classList.add('active');
-                    else btn.classList.remove('active');
-                }
-                renderInventory();
-                updateDisplay();
+                const t = document.getElementById('saveToast');
+                t.className = "show";
+                setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
             }
         }
 
         function resetGame() {
-            if(confirm("정말 모든 데이터를 삭제하고 초기화하시겠습니까?")) {
-                localStorage.removeItem('brainrotSaveV20');
+            if(confirm("정말 초기화하시겠습니까? (되돌릴 수 없습니다)")) {
+                localStorage.removeItem('brainrotSaveV33');
                 location.reload();
             }
         }
 
-        function formatNumber(num) {
-            const unit = translations[currentLang].unit;
-            if (num >= 1000000000000) return (num / 1000000000000).toFixed(2) + unit;
-            if (num >= 100000000) return (num / 100000000).toFixed(2) + (currentLang === 'en' ? 'M' : '억');
-            if (num >= 10000) return (num / 10000).toFixed(1) + (currentLang === 'en' ? 'K' : '만');
-            return num.toLocaleString();
+        // --- 시크릿 해킹 메뉴 로직 (수정됨: 4번 클릭) ---
+        function triggerSecret() {
+            secretClicks++;
+            clearTimeout(secretResetTimer);
+            secretResetTimer = setTimeout(() => { secretClicks = 0; }, 1000);
+            
+            // 4번 클릭하면 오픈
+            if(secretClicks >= 4) {
+                openHackMenu();
+                secretClicks = 0;
+            }
         }
 
-        function updateDisplay() {
-            coinDisplay.innerText = formatNumber(coins); 
-            cpsDisplay.innerText = formatNumber(incomePerSecond);
+        // 키보드 이벤트 리스너 추가 ("핵" 입력 시)
+        window.addEventListener('keyup', (e) => {
+            if (e.key === '핵') {
+                openHackMenu();
+            }
+        });
+
+        function openHackMenu() {
+            closeSettings();
+            hackMenu.style.display = "block";
+            populateHackSelect();
+        }
+
+        function closeHackMenu() { hackMenu.style.display = "none"; }
+
+        // --- 코드 시스템 ---
+        function redeemCode() {
+            const input = document.getElementById('codeInput');
+            const code = input.value.trim();
+
+            if (usedCodes.includes(code)) {
+                alert("이미 사용된 코드입니다!"); return;
+            }
+
+            if (code === "gg100k") {
+                coins += 30000;
+                alert("보상 지급: 30,000 코인!");
+                usedCodes.push(code); saveGame(); updateDisplay();
+            } else if (code === "hhh") {
+                activateLuck(10, 120);
+                alert("보상 지급: 10배 행운 포션 (2분)!");
+                usedCodes.push(code); saveGame();
+            } else {
+                alert("유효하지 않은 코드입니다.");
+            }
+            input.value = "";
+        }
+
+        // --- 행운 시스템 ---
+        function activateLuck(multiplier, durationSeconds) {
+            luckMultiplier = multiplier;
+            luckEndTime = Date.now() + (durationSeconds * 1000);
+            updateLuckDisplay();
+        }
+
+        function updateLuckDisplay() {
+            const remaining = luckEndTime - Date.now();
+            if (remaining > 0) {
+                luckStatus.style.display = "block";
+                luckStatus.innerText = `🍀 Luck x${luckMultiplier} (${Math.ceil(remaining/1000)}s)`;
+                requestAnimationFrame(updateLuckDisplay);
+            } else {
+                luckMultiplier = 1;
+                luckStatus.style.display = "none";
+            }
+        }
+
+        // --- 게임 로직 ---
+        function setBg(color) {
+            currentBg = color;
+            document.body.className = document.body.className.replace(/bg-\w+/g, '').trim(); 
+            const mode = document.getElementById('btnModePC').classList.contains('active') ? 'pc-mode' : 'mobile-mode';
+            
+            if (['secret', 'og', 'rainbow'].includes(color)) {
+                document.body.className = `${mode} bg-${color}`;
+                document.body.style.backgroundColor = '';
+                document.body.style.color = (color === 'secret') ? '#00ff00' : 'white';
+            } else {
+                document.body.className = mode;
+                document.body.style.backgroundColor = color;
+                document.body.style.color = (color === 'white') ? 'black' : 'white';
+            }
+        }
+        
+        function setPlatform(mode) {
+            document.getElementById('btnModePC').classList.remove('active');
+            document.getElementById('btnModeMobile').classList.remove('active');
+            if(mode === 'pc') document.getElementById('btnModePC').classList.add('active');
+            else document.getElementById('btnModeMobile').classList.add('active');
+            setBg(currentBg); 
+        }
+
+        function openSettings() {
+            const secretCount = myPets.filter(p => p.class === 'secret').length;
+            const ogCount = myPets.filter(p => p.class === 'og').length;
+            const godCount = myPets.filter(p => p.class === 'god' || p.class === 'mythical').length;
+
+            updateUnlockBtn(btnBgOg, ogCount, 10, "👑 OG Theme");
+            updateUnlockBtn(btnBgSecret, secretCount, 50, "🔳 Secret Theme");
+            updateUnlockBtn(btnBgRainbow, godCount, 100, "🌈 Rainbow Theme");
+
+            settingsModal.style.display = "flex";
+        }
+
+        function updateUnlockBtn(btn, current, target, text) {
+            if(current >= target) {
+                btn.disabled = false; btn.innerText = `${text} (Unlocked)`; btn.classList.add('unlocked');
+            } else {
+                btn.disabled = true; btn.innerText = `${text} (${current}/${target})`; btn.classList.remove('unlocked');
+            }
+        }
+        
+        function closeSettings() { settingsModal.style.display = "none"; }
+        
+        function populateHackSelect() {
+            const sel = document.getElementById('hackPetSelect');
+            sel.innerHTML = "";
+            allPets.forEach((p, i) => {
+                let opt = document.createElement('option');
+                opt.value = i; opt.text = p.name; sel.appendChild(opt);
+            });
+        }
+        function hackSpawnCustom() {
+            const idx = document.getElementById('hackPetSelect').value;
+            let pet = structuredClone(allPets[idx]);
+            pet.level = 1;
+            myPets.push(pet);
+            renderInventory(); updateIncome();
+        }
+        function hackAddMoney(amt) { coins += amt; updateDisplay(); }
+
+        // --- 뽑기 로직 ---
+        function buyGacha(isAuto = false) {
+            if (coins < gachaCost) {
+                if(isAuto) toggleAutoGacha();
+                else alert("코인이 부족합니다!");
+                return;
+            }
+
+            coins -= gachaCost;
+            if(gachaCost < maxGachaCost) {
+                gachaCost *= 2;
+                if(gachaCost > maxGachaCost) gachaCost = maxGachaCost;
+            }
+
+            let rand = Math.random() * 100;
+            let selectedPet = allPets[allPets.length - 1]; 
+
+            let sortedPets = [...allPets].sort((a,b) => a.chance - b.chance);
+            let currentStack = 0;
+
+            for (let pet of sortedPets) {
+                let effectiveChance = pet.chance * luckMultiplier;
+                if (rand <= (currentStack + effectiveChance)) {
+                    selectedPet = pet;
+                    break;
+                }
+                currentStack += effectiveChance;
+            }
+
+            let newPet = structuredClone(selectedPet);
+            newPet.level = 1;
+
+            let rarityKey = getRarityKey(newPet.class);
+            
+            if (newPet.class === "og") {
+                myPets.push(newPet);
+                if(!isAuto) showMessage(newPet, false);
+            } 
+            else if (autoSellFilters[rarityKey]) {
+                coins += newPet.sellPrice;
+                if(!isAuto) showMessage(newPet, true);
+            } 
+            else {
+                myPets.push(newPet);
+                if(!isAuto) showMessage(newPet, false);
+            }
+
+            updateDisplay();
+            updateIncome();
+            if(!isAuto || Math.random() < 0.1) renderInventory();
+        }
+
+        function getRarityKey(cls) {
+            if(cls === "god" || cls === "mythical") return "god";
+            if(cls === "secret" || cls === "og") return "secret";
+            return cls;
         }
 
         function toggleAutoGacha() {
             isAutoGacha = !isAutoGacha;
-            updateAutoGachaBtn();
-            if (isAutoGacha) {
-                autoGachaInterval = setInterval(() => { buyGacha(true); }, 100);
+            const btn = document.getElementById('btnAutoGacha');
+            if(isAutoGacha) {
+                btn.innerText = "🔄 자동 뽑기: ON"; btn.className = "auto-btn on";
+                autoGachaInterval = setInterval(() => buyGacha(true), 100);
             } else {
+                btn.innerText = "🔄 자동 뽑기: OFF"; btn.className = "auto-btn off";
                 clearInterval(autoGachaInterval);
             }
         }
 
-        function updateAutoGachaBtn() {
-            const t = translations[currentLang];
-            if (isAutoGacha) { btnAutoGacha.innerText = t.autoGachaOn; btnAutoGacha.className = "auto-btn on"; } 
-            else { btnAutoGacha.innerText = t.autoGachaOff; btnAutoGacha.className = "auto-btn off"; }
+        function toggleAutoSell(key) {
+            autoSellFilters[key] = !autoSellFilters[key];
+            const btn = document.getElementById(`filter-${key}`);
+            btn.classList.toggle('active');
         }
 
-        function toggleAutoSell(rarityKey) {
-            autoSellFilters[rarityKey] = !autoSellFilters[rarityKey];
-            const btn = document.getElementById(`filter-${rarityKey}`);
-            if (autoSellFilters[rarityKey]) btn.classList.add('active');
-            else btn.classList.remove('active');
-        }
-
-        function buyGacha(isAuto = false) {
-            const cost = 200;
-            if (coins >= cost) {
-                coins -= cost;
-                let rand = Math.random() * 100;
-                let accumulatedChance = 0;
-                let selectedBase = allPets[allPets.length - 1];
-
-                for (let i = 0; i < allPets.length; i++) {
-                    accumulatedChance += allPets[i].chance;
-                    if (rand <= accumulatedChance) { selectedBase = allPets[i]; break; }
-                }
-
-                let newPet = structuredClone(selectedBase);
-                newPet.traits = []; // No Traits
-
-                let rarityKey = newPet.class;
-                if (autoSellFilters[rarityKey]) {
-                    coins += newPet.sellPrice;
-                    if(!isAuto) showMessage(newPet, true);
-                } else {
-                    incomePerSecond += newPet.income;
-                    myPets.push(newPet);
-                    if (!isAuto || Math.random() < 0.2) renderInventory();
-                    if(!isAuto) showMessage(newPet, false);
-                }
-                updateDisplay();
-            } else {
-                if (isAuto) toggleAutoGacha();
-                else alert(`코인이 부족합니다! (${formatNumber(cost)} 필요)`);
-            }
-        }
-
-        function renderInventory() {
-            myPets.sort((a, b) => b.income - a.income);
-            inventoryDiv.innerHTML = "";
-            const petsToShow = myPets.slice(0, 100);
-
-            petsToShow.forEach((pet, index) => {
-                const petCard = document.createElement('div');
-                petCard.className = `pet-card ${pet.class}`;
-
-                const imgWrapper = document.createElement('div');
-                imgWrapper.className = 'img-wrapper';
-                const img = document.createElement('img');
-                img.src = pet.img;
-                img.onerror = function() { this.src = 'https://placehold.co/100x100?text=No+Img'; };
-                img.className = 'pet-img';
-                imgWrapper.appendChild(img);
-
-                const rarity = document.createElement('div');
-                rarity.className = 'pet-rarity';
-                rarity.innerText = pet.rarity;
-                if(pet.class === "mythical") rarity.style.color = "#00ffff";
-                if(pet.class === "secret") rarity.style.color = "#9932cc";
-
-                const name = document.createElement('div');
-                name.className = 'pet-name';
-                name.innerText = pet.name[currentLang] || pet.name['ko']; 
-
-                const stat = document.createElement('div');
-                stat.className = 'pet-stat';
-                stat.innerText = `+${formatNumber(pet.income)}/s`;
-
-                const sellBtn = document.createElement('button');
-                sellBtn.className = 'btn-sell';
-                sellBtn.innerText = `${translations[currentLang].sell} (+${formatNumber(pet.sellPrice)})`;
-                sellBtn.onclick = function() { sellPet(index, pet); };
-
-                petCard.appendChild(imgWrapper);
-                petCard.appendChild(rarity);
-                petCard.appendChild(name);
-                petCard.appendChild(stat);
-                petCard.appendChild(sellBtn);
-                inventoryDiv.appendChild(petCard);
+        // --- 합성(Fusion) 시스템 ---
+        function autoFuseAll() {
+            let groups = {};
+            myPets.forEach(p => {
+                if(!groups[p.name]) groups[p.name] = [];
+                groups[p.name].push(p);
             });
+
+            let fusedCount = 0;
+            let newInventory = [];
+
+            for (let name in groups) {
+                let pets = groups[name];
+                pets.sort((a,b) => a.level - b.level);
+                
+                let totalValue = 0;
+                pets.forEach(p => totalValue += p.level);
+
+                while(totalValue > 0) {
+                    let lvl = Math.min(totalValue, 10);
+                    let basePet = structuredClone(pets[0]);
+                    basePet.level = lvl;
+                    newInventory.push(basePet);
+                    totalValue -= lvl;
+                    fusedCount++;
+                }
+            }
+
+            if(fusedCount < myPets.length) {
+                myPets = newInventory;
+                renderInventory();
+                updateIncome();
+                alert("🧬 합성 완료! (등급별 색상이 적용되었습니다)");
+            } else {
+                alert("합성할 펫이 없습니다.");
+            }
         }
 
-        function sellPet(index, pet) {
-            const petName = pet.name[currentLang] || pet.name['ko'];
-            if(confirm(`[${petName}]... ${formatNumber(pet.sellPrice)}?`)) {
-                incomePerSecond -= pet.income;
-                coins += pet.sellPrice;
-                myPets.splice(index, 1);
-                renderInventory();
-                updateDisplay();
-            }
+        // --- UI 및 유틸 ---
+        function formatNumber(num) {
+            if (num >= 10000000000000000) return (num / 10000000000000000).toFixed(2) + "경";
+            if (num >= 1000000000000) return (num / 1000000000000).toFixed(2) + "조";
+            if (num >= 100000000) return (num / 100000000).toFixed(2) + "억";
+            if (num >= 10000) return (num / 10000).toFixed(1) + "만";
+            return num.toLocaleString();
+        }
+
+        function updateIncome() {
+            incomePerSecond = 0;
+            myPets.forEach(p => {
+                incomePerSecond += p.income * p.level;
+            });
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            coinDisplay.innerText = formatNumber(coins);
+            cpsDisplay.innerText = formatNumber(incomePerSecond);
+            if(gachaPriceDisplay) gachaPriceDisplay.innerText = formatNumber(gachaCost);
         }
 
         function showMessage(pet, sold) {
-            let color = "white";
-            if(pet.class === "epic") color = "#d000ff";
-            if(pet.class === "legendary") color = "#ffcc00";
-            if(pet.class === "secret") color = "#9932cc";
-            if(pet.class === "mythical") color = "#00ffff";
-            
-            const petName = pet.name[currentLang] || pet.name['ko'];
-            let msg = sold ? "(Auto Sold)" : translations[currentLang].getMsg;
+            const colors = { epic: "#d000ff", legendary: "#ffcc00", secret: "#ccc", god: "#00ffff", og: "#ffd700" };
+            const color = colors[pet.class] || "white";
+            const msg = sold ? `(자동판매 +${formatNumber(pet.sellPrice)})` : "획득!!!";
+            messageArea.innerHTML = `<span style="color:${color}; text-shadow:0 0 10px ${color};">${pet.name}</span> ${msg}`;
+            setTimeout(() => messageArea.innerHTML = "", 2000);
+        }
 
-            messageArea.innerHTML = `<span style="color:${color}; text-shadow: 0 0 10px ${color}; font-size: 1.2em;">${petName}</span> ${msg}`;
-            setTimeout(() => { messageArea.innerText = ""; }, 2000);
+        function renderInventory() {
+            myPets.sort((a, b) => (b.income * b.level) - (a.income * a.level)); 
+            inventoryDiv.innerHTML = "";
+            
+            myPets.slice(0, 150).forEach((pet, idx) => {
+                const div = document.createElement('div');
+                
+                let fusionClass = "";
+                if (pet.level >= 2) fusionClass = `fusion-${pet.level}`;
+                
+                div.className = `pet-card ${pet.class} ${fusionClass}`;
+                
+                // 특수 스타일 (흰색 배경 제거 등)
+                let extraImgClass = pet.specialStyle || "";
+
+                div.innerHTML = `
+                    <div class="img-wrapper"><img src="${pet.img}" class="pet-img ${extraImgClass}" onerror="this.src='https://placehold.co/100?text=Pet'"></div>
+                    ${pet.level > 1 ? `<div class="pet-level">Lv.${pet.level}</div>` : ''}
+                    <div class="pet-rarity-badge">${pet.rarity}</div>
+                    <div class="pet-name">${pet.name}</div>
+                    <div class="pet-stat">+${formatNumber(pet.income * pet.level)}/s</div>
+                    <button class="btn-sell" onclick="sellPet(${idx})">판매 (+${formatNumber(pet.sellPrice * pet.level)})</button>
+                `;
+                inventoryDiv.appendChild(div);
+            });
+        }
+
+        function sellPet(idx) {
+            if(confirm("판매하시겠습니까?")) {
+                let p = myPets[idx];
+                coins += p.sellPrice * p.level;
+                myPets.splice(idx, 1);
+                renderInventory();
+                updateIncome();
+            }
         }
 
         setInterval(() => {
-            if (incomePerSecond > 0) {
+            if(incomePerSecond > 0) {
                 coins += incomePerSecond;
                 updateDisplay();
             }
         }, 1000);
-
-        setInterval(() => { saveGame(false); }, 10000);
+        
+        setInterval(() => saveGame(false), 10000); 
 
         loadGame();
-        updateDisplay();
     </script>
 </body>
 </html>
